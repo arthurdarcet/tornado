@@ -2297,14 +2297,13 @@ class StaticFileHandler(RequestHandler):
                 # Clients sometimes blindly use a large range to limit their
                 # download size; cap the endpoint at the actual file size.
                 end = size
-            # Note: only return HTTP 206 if less than the entire range has been
-            # requested. Not only is this semantically correct, but Chrome
-            # refuses to play audio if it gets an HTTP 206 in response to
-            # ``Range: bytes=0-``.
-            if size != (end or size) - (start or 0):
-                self.set_status(206)  # Partial Content
-                self.set_header("Content-Range",
-                                httputil._get_content_range(start, end, size))
+            # Note: always return a 206
+            # This breaks audio streaming to chrome but
+            # is necessary for iOS through cloudfront
+            # @see https://forums.aws.amazon.com/thread.jspa?messageID=630161&
+            self.set_status(206)  # Partial Content
+            self.set_header("Content-Range",
+                            httputil._get_content_range(start, end, size))
         else:
             start = end = None
 
