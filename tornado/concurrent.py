@@ -175,7 +175,9 @@ class Future(object):
     if sys.version_info >= (3, 3):
         exec(textwrap.dedent("""
         def __await__(self):
-            return (yield self)
+            from tornado.platform.asyncio import to_asyncio_future
+            fut = to_asyncio_future(self)
+            return (yield from fut)
         """))
 
     def cancel(self):

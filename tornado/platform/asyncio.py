@@ -156,6 +156,9 @@ class AsyncIOLoop(BaseAsyncIOLoop):
             loop.close()
             raise
 
+class Future(tornado.concurrent.Future, asyncio.Future):
+    pass
+
 
 def to_tornado_future(asyncio_future):
     """Convert an ``asyncio.Future`` to a `tornado.concurrent.Future`."""
@@ -166,7 +169,7 @@ def to_tornado_future(asyncio_future):
 
 def to_asyncio_future(tornado_future):
     """Convert a `tornado.concurrent.Future` to an ``asyncio.Future``."""
-    af = asyncio.Future()
+    af = Future()
     tornado.concurrent.chain_future(tornado_future, af)
     return af
 
