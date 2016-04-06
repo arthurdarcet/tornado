@@ -39,6 +39,11 @@ except ImportError:
     futures = None
 
 try:
+    import asyncio
+except ImportError:
+    asyncio = None
+
+try:
     import typing
 except ImportError:
     typing = None
@@ -180,7 +185,7 @@ class Future(object):
     if sys.version_info >= (3, 3):
         exec(textwrap.dedent("""
         def __await__(self):
-            return (yield self)
+            return (yield from self)
         """))
     else:
         # Py2-compatible version for use with cython.
@@ -339,6 +344,10 @@ class Future(object):
 
             app_log.error('Future %r exception was never retrieved: %s',
                           self, ''.join(tb).rstrip())
+
+
+if asyncio is not None:
+    Future = type('Future', (Future, asyncio.Future), {})
 
 TracebackFuture = Future
 
